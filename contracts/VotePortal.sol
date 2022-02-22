@@ -4,34 +4,35 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 
+// ["Option1", "Option2"]
+
 contract VotePortal {
+
+    struct Vote {
+        string option;
+        uint count;
+    }
+
     uint256 totalVotes;
-    mapping(string => uint) votes;
-    mapping(string => bool) options;
+    Vote[] public votes;
+    string[] public options;
+    mapping(string => Vote) public votesMap;
 
     constructor(string[] memory _options) {
+        options = _options;
         for (uint8 i = 0; i < _options.length; i += 1) {
-            votes[_options[i]] = 0;
-            options[_options[i]] = true;
+            votes.push(Vote(_options[i], 0));
+            votesMap[_options[i]] = Vote(_options[i], 0);
         }
     }
 
-    function vote(string memory option) public {
-        require(options[option]);
+    function vote(uint optionIndex) public {
         totalVotes += 1;
-        votes[option] += 1;
+        votes[optionIndex].count += 1;
         console.log("%s has voted!", msg.sender);
     }
 
-    function getTotalVotes() public view returns (uint256) {
-        console.log("We have %d total votes", totalVotes);
-        return totalVotes;
-    }
-
-    function getTotalVotesForOption(string memory option) public view returns (uint256) {
-        require(options[option]);
-        console.log("Option `%s` has %d votes", option, votes[option]);
-
-        return votes[option];
+    function getVotes() public view returns (Vote[] memory) {
+        return votes;
     }
 }

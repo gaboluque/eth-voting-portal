@@ -7,26 +7,20 @@ const main = async () => {
   console.log("Contract deployed to:", voteContract.address);
   console.log("Contract deployed by:", owner.address);
 
-  let voteCount;
-  voteCount = await voteContract.getTotalVotes();
-
-  let voteTxn = await voteContract.vote("Option1");
+  let voteTxn = await voteContract.vote(1);
   await voteTxn.wait();
 
-  voteCount = await voteContract.getTotalVotes();
-
   try {
-    voteTxn = await voteContract.connect(randomPerson).vote("asdf");
+    voteTxn = await voteContract.connect(randomPerson).vote(0);
     await voteTxn.wait();
   } catch (e) {
     console.log(e.message);
   }
 
-  const option1Votes = await voteContract.getTotalVotesForOption("Option1");
-  console.log("Votes for Option1: ", option1Votes);
-
-  const option2Votes = await voteContract.getTotalVotesForOption("Option2");
-  console.log("Votes for Option2: ", option2Votes);
+  const votes = await voteContract.getVotes();
+  votes.forEach(({option, count}) => {
+    console.log(option, count);
+  })
 };
 
 const runMain = async () => {
