@@ -16,19 +16,36 @@
     text-align: center;
     font-size: 32px;
     font-weight: 600;
+    color: #FFFFFF;
 }
 
 .bio {
     text-align: center;
     color: gray;
-    margin-top: 16px;
+    margin: 20px;
 }
 
-.waveButton {
+.options-container {
+    display: flex;
+    justify-content: center;
+    color: #FFFFFF;
+}
+
+.options-container .option-item {
+    width: 200px;
+    border: 1px solid #FFFFFF;
+    text-align: center;
+    padding: 20px;
+}
+
+.options-container .option-item .title {
+    font-size: 20px;
+}
+
+.option-item button {
     cursor: pointer;
     margin-top: 16px;
     padding: 8px;
     border: 0;
     border-radius: 5px;
-
 }

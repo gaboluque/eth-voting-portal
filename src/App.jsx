@@ -1,11 +1,28 @@
 import * as React from "react";
 import { ethers } from "ethers";
 import './App.css';
+import {useEffect, useState} from "react";
+
+const testOptions = [{
+  option: "Option1",
+  count: 1
+}, {
+  option: "Option2",
+  count: 2
+}, {
+  option: "Option3",
+  count: 3
+}]
 
 export default function App() {
+  const [options, setOptions] = useState([]);
 
-  const wave = () => {
+  useEffect(() => {
+    setOptions(testOptions);
+  }, [])
 
+  const vote = (optionIndex) => {
+    console.log(optionIndex);
   }
 
   return (
@@ -15,14 +32,18 @@ export default function App() {
         <div className="header">
           👋 Hey there!
         </div>
-
         <div className="bio">
-          I am farza and I worked on self-driving cars so that's pretty cool right? Connect your Ethereum wallet and wave at me!
+         Vote fot the option you like!
         </div>
-
-        <button className="waveButton" onClick={wave}>
-          Wave at Me
-        </button>
+        <div className="options-container">
+          {options.map(({option, count}, index) => (
+            <div key={option} className="option-item">
+              <p className="title">{option}</p>
+              <p className="count">{`Votes: ${count}`}</p>
+              <button onClick={() => vote(index)}>Vote</button>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
