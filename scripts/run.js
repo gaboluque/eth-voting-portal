@@ -1,9 +1,9 @@
 const main = async () => {
   const [owner, randomPerson] = await hre.ethers.getSigners();
   const voteContractFactory = await hre.ethers.getContractFactory("VotePortal");
-  const voteContract = await voteContractFactory.deploy(["Option1", "Option2"], {
-    value: hre.ethers.utils.parseEther("100"),
-  });
+  const voteContract = await voteContractFactory.deploy(
+    [["Option 1", "Description Option 1"], ["Option 2", "Description Option 2"]],
+    {value: hre.ethers.utils.parseEther("100")});
   await voteContract.deployed();
 
   console.log("Contract deployed to:", voteContract.address);
@@ -33,8 +33,8 @@ const main = async () => {
   // Get votes
   console.log("VOTES: ");
   const votes = await voteContract.getVotes();
-  votes.forEach(({option, count}) => {
-    console.log(option, count.toNumber());
+  votes.forEach(({name, description, count}) => {
+    console.log(name, description, count.toNumber());
   })
 };
 

@@ -4,35 +4,34 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 
-// ["Option1", "Option2"]
-
 contract VotePortal {
 
     struct Vote {
-        string option;
+        string name;
+        string description;
         uint count;
     }
 
     // New Vote event
     event NewVote(address indexed from, uint256 timestamp);
 
-
     uint256 totalVotes;
     Vote[] public votes;
-    string[] public options;
     mapping(address => bool) voters;
     uint256 private randSeed;
 
-    constructor(string[] memory _options) payable {
-        options = _options;
-
-        // Initialize votes arr
+    constructor(string[][] memory _options) payable {
+        // Initialize votes and options
         for (uint8 i = 0; i < _options.length; i += 1) {
-            votes.push(Vote(_options[i], 0));
+            votes.push(Vote(_options[i][0], _options[i][1], 0));
         }
 
         // Set the initial seed
         randSeed = (block.timestamp + block.difficulty) % 100;
+    }
+
+    function getVotes() public view returns (Vote[] memory) {
+        return votes;
     }
 
     function vote(uint optionIndex) public {
@@ -46,6 +45,10 @@ contract VotePortal {
 
         emit NewVote(msg.sender, block.timestamp);
 
+        getPrize();
+    }
+
+    function getPrize() private {
         // Generate a new seed for the next user that sends a vote
         randSeed = (block.difficulty + block.timestamp + randSeed) % 100;
 
@@ -59,9 +62,5 @@ contract VotePortal {
         } else {
             console.log("%s Didn't win prize! :(", msg.sender);
         }
-    }
-
-    function getVotes() public view returns (Vote[] memory) {
-        return votes;
     }
 }
