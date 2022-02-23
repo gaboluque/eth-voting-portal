@@ -6,7 +6,9 @@ const main = async () => {
   console.log("Account balance: ", accountBalance.toString());
 
   const voteContractFactory = await hre.ethers.getContractFactory("VotePortal");
-  const voteContract = await voteContractFactory.deploy(["Option1", "Option2"]);
+  const voteContract = await voteContractFactory.deploy(["Option 1", "Option 2"], {
+    value: hre.ethers.utils.parseEther("0.1"),
+  });
   await voteContract.deployed();
 
   console.log("VotePortal address: ", voteContract.address);

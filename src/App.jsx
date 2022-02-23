@@ -4,33 +4,15 @@ import {useEffect, useState} from "react";
 import {checkIfWalletIsConnected, connectToWallet} from "./eth/helpers";
 import {useVoteContract} from "./hooks/useVoteContract";
 
-const formatOptions = (options) => {
-  console.log(options);
-  return options.map(({count, option}) => ({option, count: count.toNumber()}));
-}
-
 export default function App() {
-  const {contractReady, contract} = useVoteContract();
   const [options, setOptions] = useState([]);
   const [currentAccount, setCurrentAccount] = useState("");
   const [loading, setLoading] = useState(false);
+  const {getOptions, vote} = useVoteContract(setOptions, setLoading);
 
   const connectWallet = async () => {
     const address = await connectToWallet();
     setCurrentAccount(address);
-  }
-
-  const getOptions = async () => {
-    if (contractReady) {
-      try {
-        let options = await contract.getVotes();
-        return setOptions(formatOptions(options));
-      } catch (error) {
-        console.log(error);
-        return [];
-      }
-    }
-    return [];
   }
 
   useEffect(() => {
@@ -40,24 +22,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    getOptions();
-  }, [contractReady]);
-
-  const vote = async (optionIndex) => {
-    if (contractReady) {
-      try {
-        setLoading(true);
-        const tx = await contract.vote(optionIndex);
-        await tx.wait();
-        await getOptions();
-      } catch (error) {
-        console.log(error);
-      }
-      finally {
-        setLoading(false);
-      }
-    }
-  }
+    getOptions(setOptions);
+  }, [getOptions]);
 
   return (
     <div className="mainContainer">
@@ -69,9 +35,6 @@ export default function App() {
         <div className="bio">
           Vote fot the option you like!
         </div>
-        {/*
-        * If there is no currentAccount render this button
-        */}
         {!currentAccount && (
           <button className="waveButton" onClick={connectWallet}>
             Connect Wallet

@@ -1,25 +1,40 @@
 const main = async () => {
   const [owner, randomPerson] = await hre.ethers.getSigners();
   const voteContractFactory = await hre.ethers.getContractFactory("VotePortal");
-  const voteContract = await voteContractFactory.deploy(["Option1", "Option2"]);
+  const voteContract = await voteContractFactory.deploy(["Option1", "Option2"], {
+    value: hre.ethers.utils.parseEther("100"),
+  });
   await voteContract.deployed();
 
   console.log("Contract deployed to:", voteContract.address);
   console.log("Contract deployed by:", owner.address);
 
-  let voteTxn = await voteContract.vote(1);
-  await voteTxn.wait();
+  // Get Contract balance
+  let contractBalance = await hre.ethers.provider.getBalance(voteContract.address);
+  console.log("Contract balance:", hre.ethers.utils.formatEther(contractBalance));
 
+
+  // Vote
   try {
-    voteTxn = await voteContract.connect(randomPerson).vote(0);
+    let voterBalance = await hre.ethers.provider.getBalance(randomPerson.address);
+    console.log("Voter's balance before: ", hre.ethers.utils.formatEther(voterBalance));
+    const voteTxn = await voteContract.connect(randomPerson).vote(0);
     await voteTxn.wait();
+    voterBalance = await hre.ethers.provider.getBalance(randomPerson.address);
+    console.log("Voter's balance after: ", hre.ethers.utils.formatEther(voterBalance));
   } catch (e) {
     console.log(e.message);
   }
 
+  // Get Contract balance to see what happened!
+  contractBalance = await hre.ethers.provider.getBalance(voteContract.address);
+  console.log("Contract balance:", hre.ethers.utils.formatEther(contractBalance));
+
+  // Get votes
+  console.log("VOTES: ");
   const votes = await voteContract.getVotes();
   votes.forEach(({option, count}) => {
-    console.log(option, count);
+    console.log(option, count.toNumber());
   })
 };
 

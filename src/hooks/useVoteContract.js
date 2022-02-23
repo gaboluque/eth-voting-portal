@@ -2,9 +2,11 @@ import {ethers} from "ethers";
 import {abi} from "../eth/utils/VotePortal.json";
 import {useEffect, useState} from "react";
 
-const contractAddress = "0x7Df00C8855aB907CFe058c6375f56B21bad5720c";
+const contractAddress = "0xAB962873adF20Cf035f0Fb0262e2513725711A19";
 
-export const useVoteContract = () => {
+const formatOptions = (options) => options.map(({count, option}) => ({option, count: count.toNumber()}));
+
+export const useVoteContract = (setOptions, setLoading) => {
   const [contract, setContract] = useState(null);
 
   const getContract = () => {
@@ -30,5 +32,46 @@ export const useVoteContract = () => {
     getContract();
   }, []);
 
-  return {contractReady: !!contract, contract}
+  const getOptions = async () => {
+    let newOptions = [];
+    if (contract) {
+      try {
+        let options = await contract.getVotes();
+        newOptions = formatOptions(options);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    setOptions(newOptions);
+  }
+
+  /**
+   * Listen in for emitter events!
+   */
+  useEffect(() => {
+    if (contract) {contract.on("NewVote", getOptions);}
+
+    return () => {
+      if (contract) {
+        contract.off("NewWave", getOptions);
+      }
+    };
+  }, [contract]);
+
+  const vote = async (optionIndex) => {
+    if (contract) {
+      try {
+        setLoading(true);
+        const tx = await contract.vote(optionIndex, { gasLimit: 300000 });
+        await tx.wait();
+        await getOptions();
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  }
+
+  return {getOptions, contract, vote}
 }
