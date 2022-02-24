@@ -2,9 +2,11 @@ import {ethers} from "ethers";
 import {abi} from "../eth/utils/VotePortal.json";
 import {useEffect, useState} from "react";
 
-const contractAddress = "0xAB962873adF20Cf035f0Fb0262e2513725711A19";
+const contractAddress = "0x07745c64D4313e9D0Edb83d8B37F69Ab269E945e";
 
-const formatOptions = (options) => options.map(({count, option}) => ({option, count: count.toNumber()}));
+const formatOptions = (options) => options.map(({count, name, description}) => {
+  return {name, description, count: count.toNumber()};
+});
 
 export const useVoteContract = (setOptions, setLoading) => {
   const [contract, setContract] = useState(null);
@@ -49,11 +51,14 @@ export const useVoteContract = (setOptions, setLoading) => {
    * Listen in for emitter events!
    */
   useEffect(() => {
-    if (contract) {contract.on("NewVote", getOptions);}
+    if (contract) {
+      contract.on("NewVote", getOptions);
+      getOptions();
+    }
 
     return () => {
       if (contract) {
-        contract.off("NewWave", getOptions);
+        contract.off("NewVote", getOptions);
       }
     };
   }, [contract]);
@@ -73,5 +78,5 @@ export const useVoteContract = (setOptions, setLoading) => {
     }
   }
 
-  return {getOptions, contract, vote}
+  return {contract, vote}
 }

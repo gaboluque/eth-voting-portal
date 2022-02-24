@@ -8,7 +8,7 @@ export default function App() {
   const [options, setOptions] = useState([]);
   const [currentAccount, setCurrentAccount] = useState("");
   const [loading, setLoading] = useState(false);
-  const {getOptions, vote} = useVoteContract(setOptions, setLoading);
+  const {vote} = useVoteContract(setOptions, setLoading);
 
   const connectWallet = async () => {
     const address = await connectToWallet();
@@ -20,10 +20,6 @@ export default function App() {
       setCurrentAccount(account)
     });
   }, []);
-
-  useEffect(() => {
-    getOptions(setOptions);
-  }, [getOptions]);
 
   return (
     <div className="mainContainer">
@@ -41,9 +37,10 @@ export default function App() {
           </button>
         )}
         <div className="options-container">
-          {options.map(({option, count}, index) => (
-            <div key={option} className="option-item">
-              <p className="title">{option}</p>
+          {options.map(({name, description, count}, index) => (
+            <div key={name} className="option-item">
+              <p className="title">{name}</p>
+              <p className="description">{description}</p>
               <p className="count">{`Votes: ${count}`}</p>
               <button disabled={loading} onClick={() => vote(index)}>{loading ? "Voting..." : "Vote"}</button>
             </div>
